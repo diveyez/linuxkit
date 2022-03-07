@@ -6,6 +6,7 @@
 """See this page for more details:
 http://dev.chromium.org/chromium-os/how-tos-and-troubleshooting/kernel-configuration
 """
+
 import os
 import re
 import sys
@@ -26,19 +27,18 @@ for config in sys.argv[1:]:
 
 # Split out common config options
 common = allconfigs.values()[0].copy()
-for config in allconfigs.keys():
+for config in allconfigs:
     common &= allconfigs[config]
-for config in allconfigs.keys():
+for config in allconfigs:
     allconfigs[config] -= common
 
 allconfigs["common"] = common
 
 # Generate new splitconfigs
-for config in allconfigs.keys():
-    f = open("split-" + config, "w")
-    for option, value in sorted(list(allconfigs[config])):
-        if value == "is not set":
-            print >>f, "# CONFIG_%s %s" % (option, value)
-        else:
-            print >>f, "CONFIG_%s=%s" % (option, value)
-    f.close()
+for config in allconfigs:
+    with open(f"split-{config}", "w") as f:
+        for option, value in sorted(list(allconfigs[config])):
+            if value == "is not set":
+                print >>f, "# CONFIG_%s %s" % (option, value)
+            else:
+                print >>f, "CONFIG_%s=%s" % (option, value)
